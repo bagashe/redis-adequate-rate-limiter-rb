@@ -1,4 +1,4 @@
-Wrapper for a Lua script for Redis that provides **smooth**, **configurable**, **space-efficient** & **blazing fast** rate limiting. 
+Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **configurable**, **space-efficient** & **blazing fast** rate limiting. 
 
 
 ### Usage:
@@ -25,7 +25,7 @@ Wrapper for a Lua script for Redis that provides **smooth**, **configurable**, *
     end
    
    
-If `is_allowed?` is invoked on an event type that has not been configured, a ConfigNotDefinedError exception will be raised.
+If `is_allowed?` is invoked on an event type that has not been configured, a `ConfigNotDefinedError` exception will be raised.
 
 
                                                                                                      
@@ -39,7 +39,8 @@ lockout_interval = 300
 Each `actor` will be rate limited to `1000` `api-access` events per `3600 seconds`. Once the limit   
 is reached, the `actor` will be locked out for `300 seconds`. Note that the rate limit applies over  
 a rolling window.                                                                                    
-                                                                                                     
+                             
+ 
 ### Features                                                                                                     
 This rate-limiting solution -                                                                        
 1. Does not use buckets & does not enumerate events. So it is space-efficient. It stores everything  
