@@ -11,7 +11,7 @@ Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **config
     rate_limiter.configure(r, event_type, max_allowed, over_interval, lockout_interval)
    
     ...
-    if rate_limiter.is_allowed?(r, event_type, actor, check_only: false)
+    if rate_limiter.allow?(r, event_type, actor, check_only: false)
        # Count this action and check if it is allowed.
        ...
     end
@@ -19,13 +19,13 @@ Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **config
    
     # OR
     ...
-    if rate_limiter.is_allowed?(r, event_type, actor, check_only: true)
+    if rate_limiter.allow?(r, event_type, actor, check_only: true)
        # Don't count this action and check if it is allowed. 
        ...
     end
    
    
-If `is_allowed?` is invoked on an event type that has not been configured, a `ConfigNotDefinedError` exception will be raised.
+If `allow?` is invoked on an event type that has not been configured, a `ConfigNotDefinedError` exception will be raised.
 
 
                                                                                                      

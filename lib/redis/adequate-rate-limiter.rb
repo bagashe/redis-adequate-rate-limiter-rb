@@ -13,7 +13,7 @@ class Redis
   # rate_limiter.configure(r, event_type, max_allowed, over_interval, lockout_interval)
   #
   # ...
-  # if rate_limiter.is_allowed?(r, event_type, actor, check_only: false)
+  # if rate_limiter.allow?(r, event_type, actor, check_only: false)
   #    # Count this action and check if it is allowed.
   #    ...
   # end
@@ -21,13 +21,13 @@ class Redis
   #
   # # OR
   # ...
-  # if rate_limiter.is_allowed?(r, event_type, actor, check_only: true)
+  # if rate_limiter.allow?(r, event_type, actor, check_only: true)
   #    # Don't count this action and check if it is allowed. 
   #    ...
   # end
   #
   #
-  # If `is_allowed?` is invoked on an event type that has not been configured, a
+  # If `allow?` is invoked on an event type that has not been configured, a
   # ConfigNotDefinedError exception will be raised.
   #
   class AdequateRateLimiter
@@ -64,7 +64,18 @@ class Redis
     # @param actor [String]
     # @param check_only [Boolean] If true, the action is not counted against the quota.
     # @return [Boolean]
-    def is_allowed?(redis, event_type, actor, check_only: false)
+    def allow?(redis, event_type, actor, check_only: false)
+      q = available_quota(redis, event_type, actor, check_only: check_only)
+      return (q > 0)
+    end
+
+    # Fetch remaining quota, as a fraction of max_allowed for an event_type, actor pair.
+    # @param redis [Redis]
+    # @param event_type [String]
+    # @param actor [String]
+    # @param check_only [Boolean] If true, the action is not counted against the quota.
+    # @return [Float]
+    def available_quota(redis, event_type, actor, check_only: false)
       keys = [namespaced_key(event_type), actor]
       argv = [Time.now.to_i, check_only ? 0 : 1]
 
@@ -79,8 +90,7 @@ class Redis
         raise ConfigNotDefinedError, error.to_s
       end 
     ensure
-      print available_quota
-      return (available_quota > 0)
+      return available_quota
     end
 
     class ConfigNotDefinedError < StandardError
@@ -144,7 +154,7 @@ class Redis
                 redis.call('lset', key, 2, t1)
               end
 
-              redis.call('lset', key, 0, y)
+              redis.call('lset', key, 0, string.format("%.4f", y))
               redis.call('lset', key, 1, t1)
               redis.call('expire', key, expire_in)
             end
@@ -159,7 +169,7 @@ class Redis
 
     private
     def namespaced_key(key)
-      "rl:#{key}"
+      "arl:#{key}"
     end
   end
 
