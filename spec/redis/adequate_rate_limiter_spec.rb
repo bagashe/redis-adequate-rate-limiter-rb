@@ -10,7 +10,6 @@ RSpec.describe Redis::AdequateRateLimiter do
 
   describe '#configure' do
     it 'configures rate limiting for an event type' do
-      print("In a SPEC\n")
       expect(REDIS).to receive(:del).once.and_call_original
       expect(REDIS).to receive(:rpush).exactly(3).times.and_call_original
 
