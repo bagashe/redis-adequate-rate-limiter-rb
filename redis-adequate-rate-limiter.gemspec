@@ -5,12 +5,13 @@ Gem::Specification.new do |s|
   s.version     = '0.0.0'
   s.summary     = 'Provides rate limiting using Redis & a Lua script.'
   s.description = <<~DESCRIPTION
-    Uses a Lua extension for Redis to provide smooth, configurable, space-efficient &
-    blazing fast rate limiting. As this is extremely light weight, it can be used to rate limit
-    access to any resource at scale. Linked homepage has the details.
+    Uses a Lua script for Redis to provide smooth, configurable, space-efficient &
+    blazing fast rate limiting. The script is very light weight and performs the entire operation
+    atomically. So it can be used to rate limit access to any resource at scale. Linked homepage
+    has more details.
   DESCRIPTION
   s.authors     = ['Bhal Agashe']
-  s.email       = 'bhalchandra@gmail.com'
+  s.email       = ''
   s.files       = ['lib/redis/adequate_rate_limiter.rb']
   s.homepage    =
     'https://github.com/bagashe/redis-adequate-rate-limiter-rb'
