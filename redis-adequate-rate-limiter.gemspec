@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.homepage    =
     'https://github.com/bagashe/redis-adequate-rate-limiter-rb'
   s.license = 'MIT'
-  s.required_ruby_version = '~> 2.7'
+  s.required_ruby_version = '~> 2'
   s.add_runtime_dependency 'redis', '~> 4.0'
   s.require_paths = ['lib']
 end
