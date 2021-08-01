@@ -4,7 +4,7 @@ Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **config
 ### Usage:
   
     require 'redis'
-    require 'redis/adequate-rate-limiter'
+    require 'redis/adequate_rate_limiter'
    
     r = Redis.new
     rate_limiter = Redis::AdequateRateLimiter.new(r)

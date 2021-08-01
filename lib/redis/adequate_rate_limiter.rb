@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # @see https://github.com/redis/redis-rb
 class Redis
   # Wrapper for a Lua script that provides smooth, configurable, space-efficient & blazing fast
@@ -6,7 +8,7 @@ class Redis
   # Usage:
   #
   # require 'redis'
-  # require 'redis/adequate-rate-limiter'
+  # require 'redis/adequate_rate_limiter'
   #
   # r = Redis.new
   # rate_limiter = Redis::AdequateRateLimiter.new(r)
@@ -22,7 +24,7 @@ class Redis
   # # OR
   # ...
   # if rate_limiter.allow?(r, event_type, actor, check_only: true)
-  #    # Don't count this action and check if it is allowed. 
+  #    # Don't count this action and check if it is allowed.
   #    ...
   # end
   #
@@ -31,10 +33,9 @@ class Redis
   # ConfigNotDefinedError exception will be raised.
   #
   class AdequateRateLimiter
-    
     # Lua script SHA1 digest
     # @return [String]
-    attr_reader :sha1_digest  
+    attr_reader :sha1_digest
 
     # Create a new AdequateRateLimter instance
     # @param redis [Redis]
@@ -52,7 +53,7 @@ class Redis
     # See README for more details.
     def configure(redis, event_type, max_allowed, over_interval, lockout_interval)
       key = namespaced_key(event_type)
-      redis.del(key)  
+      redis.del(key)
       redis.rpush(key, max_allowed)
       redis.rpush(key, over_interval)
       redis.rpush(key, lockout_interval)
@@ -66,7 +67,7 @@ class Redis
     # @return [Boolean]
     def allow?(redis, event_type, actor, check_only: false)
       q = available_quota(redis, event_type, actor, check_only: check_only)
-      return (q > 0)
+      q.positive?
     end
 
     # Fetch remaining quota, as a fraction of max_allowed for an event_type, actor pair.
@@ -82,21 +83,34 @@ class Redis
       available_quota = 1.0
 
       available_quota = redis.evalsha(sha1_digest, keys, argv).to_f
-    rescue Redis::CommandError => error
-      if error.to_s.include?('NOSCRIPT')
+    rescue Redis::CommandError => e
+      if e.to_s.include?('NOSCRIPT')
         load_script(redis)
         available_quota = redis.evalsha(sha1_digest, keys, argv).to_f
-      elsif error.to_s.include?('No config found')
-        raise ConfigNotDefinedError, error.to_s
-      end 
+      elsif e.to_s.include?('No config found')
+        raise ConfigNotDefinedError, e.to_s
+      end
     ensure
-      return available_quota
+      available_quota
+    end
+
+    def namespaced_key(key)
+      "arl:#{key}"
+    end
+
+    def peek(redis, event_type, actor)
+      redis.lrange(namespaced_key("#{event_type}:#{actor}"), 0, -1)
+    end
+
+    def peek_config(redis, event_type)
+      redis.lrange(namespaced_key(event_type), 0, -1)
     end
 
     class ConfigNotDefinedError < StandardError
     end
 
     private
+
     def load_script(redis)
       lua_code = <<-LUA
         local config_identifier = KEYS[1]
@@ -166,11 +180,5 @@ class Redis
 
       @sha1_digest = redis.script(:load, lua_code.freeze).freeze
     end
-
-    private
-    def namespaced_key(key)
-      "arl:#{key}"
-    end
   end
-
-end	
+end
