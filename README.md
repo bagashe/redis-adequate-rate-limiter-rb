@@ -45,7 +45,7 @@ a rolling window.
 ## Features                                                                                                     
 This rate-limiting solution -                                                                        
 1. Does not use buckets & does not enumerate events. So it is space-efficient. It stores everything  
-in a three-tuple for each `actor`,`event` pair.                                                      
+in a three-tuple for each `event_type`,`actor` pair.                                                      
 2. Uses a simple linear decay function to compute available quota. So it is blazing fast.      
 ```
   ^
