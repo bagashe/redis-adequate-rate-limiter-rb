@@ -62,8 +62,9 @@ y0 was the computed used quota at t0
 y1 = y0' + 1 is the computed used quota at t1.
 
 ```
-3. Can be easily configured to rate limit over a few seconds or a few hours or a few days. 
-4. Can be used to rate limit `actors` such as `Users`, `IPs`, `SessionIds`, `BrowserCookies`, `AccessTokens`, etc.            
+3. `allow?` is an **atomic operation**. So there is no race condition between checking and updating.
+4. Can be easily configured to rate limit over a few seconds or a few hours or a few days. 
+5. Can be used to rate limit `actors` such as `Users`, `IPs`, `SessionIds`, `BrowserCookies`, `AccessTokens`, etc.            
                       
                                                                                                      
 ## Performance benchmark of the Lua script using redis-benchmark                                                                                         
