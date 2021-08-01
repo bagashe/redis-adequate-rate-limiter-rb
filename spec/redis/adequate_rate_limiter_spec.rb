@@ -25,61 +25,45 @@ RSpec.describe Redis::AdequateRateLimiter do
       rate_limiter.configure(REDIS, event_type, 10, 3600, 300)
     end
 
-    context 'check_only: false' do
-      it 'should allow the first 9 events by an actor' do
-        9.times do
-          expect(REDIS).to receive(:evalsha)
-            .with(rate_limiter.sha1_digest, any_args)
-            .once
-            .and_call_original
-          allow = rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
-          expect(allow).to be true
-        end
-      end
-
-      it 'should block the actor once the limit is reached' do
-        # Set up the block.
-        10.times do
-          rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
-        end
-
-        expect(
-          rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
-        ).to be false
-      end
-
-      it 'should lockout the actor once the limit is reached' do
-        # Set up the block.
-        10.times do
-          rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
-        end
-
-        lockout_end_time = Time.now.to_i + 300
-        allow(Time).to receive_message_chain(:now, :to_i).and_return(lockout_end_time)
-        expect(
-          rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
-        ).to be false
-      end
-
-      it 'should raise error if config is not defined' do
-        expect {
-          rate_limiter.allow?(REDIS, "not-defined", actor, check_only: false)
-        }.to raise_error(Redis::AdequateRateLimiter::ConfigNotDefinedError)
+    it 'should allow the first 9 events by an actor' do
+      9.times do
+        expect(REDIS).to receive(:evalsha)
+          .with(rate_limiter.sha1_digest, any_args)
+          .once
+          .and_call_original
+        allow = rate_limiter.allow?(REDIS, event_type, actor)
+        expect(allow).to be true
       end
     end
 
-    context 'check_only: true' do
-      it 'should allow all events by the actor' do
-        20.times do
-          expect(REDIS).to receive(:evalsha)
-            .with(rate_limiter.sha1_digest, any_args)
-            .once
-            .and_call_original
-          expect(
-            rate_limiter.allow?(REDIS, event_type, actor, check_only: true)
-          ).to be true
-        end
+    it 'should block the actor once the limit is reached' do
+      # Set up the block.
+      10.times do
+        rate_limiter.allow?(REDIS, event_type, actor)
       end
+
+      expect(
+        rate_limiter.allow?(REDIS, event_type, actor)
+      ).to be false
+    end
+
+    it 'should lockout the actor once the limit is reached' do
+      # Set up the block.
+      10.times do
+        rate_limiter.allow?(REDIS, event_type, actor)
+      end
+
+      lockout_end_time = Time.now.to_i + 300
+      allow(Time).to receive_message_chain(:now, :to_i).and_return(lockout_end_time)
+      expect(
+        rate_limiter.allow?(REDIS, event_type, actor)
+      ).to be false
+    end
+
+    it 'should raise error if config is not defined' do
+      expect {
+        rate_limiter.allow?(REDIS, "not-defined", actor)
+      }.to raise_error(Redis::AdequateRateLimiter::ConfigNotDefinedError)
     end
   end
 end

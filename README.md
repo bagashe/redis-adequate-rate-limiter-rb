@@ -11,18 +11,11 @@ Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **config
     rate_limiter.configure(r, event_type, max_allowed, over_interval, lockout_interval)
    
     ...
-    if rate_limiter.allow?(r, event_type, actor, check_only: false)
+    if rate_limiter.allow?(r, event_type, actor)
        # Count this action and check if it is allowed.
        ...
     end
     ...
-   
-    # OR
-    ...
-    if rate_limiter.allow?(r, event_type, actor, check_only: true)
-       # Don't count this action and check if it is allowed. 
-       ...
-    end
    
    
 If `allow?` is invoked on an event type that has not been configured, a `ConfigNotDefinedError` exception will be raised.
@@ -66,8 +59,8 @@ y |      \
                                     time
  
 y0 was the computed used quota at t0
-y0' is the computed used quota at t1, after applying a linear decay function.
-y1 = y0' + 1 is the computed used quota at t1 if check_only: false
+y1 = y0' + 1 is the computed used quota at t1.
+
 ```
 3. Can be easily configured to rate limit over a few seconds or a few hours or a few days. 
 4. Can be used to rate limit `actors` such as `Users`, `IPs`, `SessionIds`, `BrowserCookies`, `AccessTokens`, etc.            

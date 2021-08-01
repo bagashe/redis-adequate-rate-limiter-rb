@@ -15,18 +15,11 @@ class Redis
   # rate_limiter.configure(r, event_type, max_allowed, over_interval, lockout_interval)
   #
   # ...
-  # if rate_limiter.allow?(r, event_type, actor, check_only: false)
+  # if rate_limiter.allow?(r, event_type, actor)
   #    # Count this action and check if it is allowed.
   #    ...
   # end
   # ...
-  #
-  # # OR
-  # ...
-  # if rate_limiter.allow?(r, event_type, actor, check_only: true)
-  #    # Don't count this action and check if it is allowed.
-  #    ...
-  # end
   #
   #
   # If `allow?` is invoked on an event type that has not been configured, a
@@ -63,22 +56,37 @@ class Redis
     # @param redis [Redis]
     # @param event_type [String]
     # @param actor [String]
-    # @param check_only [Boolean] If true, the action is not counted against the quota.
     # @return [Boolean]
-    def allow?(redis, event_type, actor, check_only: false)
-      q = available_quota(redis, event_type, actor, check_only: check_only)
+    def allow?(redis, event_type, actor)
+      q = available_quota(redis, event_type, actor)
       q.positive?
     end
 
+    def peek(redis, event_type, actor)
+      redis.lrange(namespaced_key("#{event_type}:#{actor}"), 0, -1)
+    end
+
+    def peek_config(redis, event_type)
+      redis.lrange(namespaced_key(event_type), 0, -1)
+    end
+
+    def namespaced_key(key)
+      "arl:#{key}"
+    end
+
+    class ConfigNotDefinedError < StandardError
+    end
+
+    private
+    
     # Fetch remaining quota, as a fraction of max_allowed for an event_type, actor pair.
     # @param redis [Redis]
     # @param event_type [String]
     # @param actor [String]
-    # @param check_only [Boolean] If true, the action is not counted against the quota.
     # @return [Float]
-    def available_quota(redis, event_type, actor, check_only: false)
+    def available_quota(redis, event_type, actor)
       keys = [namespaced_key(event_type), actor]
-      argv = [Time.now.to_i, check_only ? 0 : 1]
+      argv = [Time.now.to_i, 1]
 
       available_quota = 1.0
 
@@ -93,23 +101,6 @@ class Redis
     ensure
       available_quota
     end
-
-    def namespaced_key(key)
-      "arl:#{key}"
-    end
-
-    def peek(redis, event_type, actor)
-      redis.lrange(namespaced_key("#{event_type}:#{actor}"), 0, -1)
-    end
-
-    def peek_config(redis, event_type)
-      redis.lrange(namespaced_key(event_type), 0, -1)
-    end
-
-    class ConfigNotDefinedError < StandardError
-    end
-
-    private
 
     def load_script(redis)
       lua_code = <<-LUA
@@ -180,5 +171,6 @@ class Redis
 
       @sha1_digest = redis.script(:load, lua_code.freeze).freeze
     end
+
   end
 end
