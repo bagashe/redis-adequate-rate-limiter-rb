@@ -23,6 +23,5 @@ jobs:
           bundler-cache: true
 
       - name: Run tests
-        env:
         run: |
           bundle exec rspec spec/redis/adequate_rate_limiter_spec.rb
