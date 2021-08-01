@@ -60,6 +60,12 @@ RSpec.describe Redis::AdequateRateLimiter do
           rate_limiter.allow?(REDIS, event_type, actor, check_only: false)
         ).to be false
       end
+
+      it 'should raise error if config is not defined' do
+        expect {
+          rate_limiter.allow?(REDIS, "not-defined", actor, check_only: false)
+        }.to raise_error(Redis::AdequateRateLimiter::ConfigNotDefinedError)
+      end
     end
 
     context 'check_only: true' do
