@@ -1,5 +1,4 @@
 .bundle
-.rspec
 Gemfile.lock
 vendor
 
