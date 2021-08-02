@@ -78,7 +78,7 @@ class Redis
     end
 
     private
-    
+
     # Fetch remaining quota, as a fraction of max_allowed for an event_type, actor pair.
     # @param redis [Redis]
     # @param event_type [String]
@@ -171,6 +171,5 @@ class Redis
 
       @sha1_digest = redis.script(:load, lua_code.freeze).freeze
     end
-
   end
 end
