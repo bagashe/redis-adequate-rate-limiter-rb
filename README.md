@@ -1,4 +1,6 @@
 Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **configurable**, **space-efficient** & **blazing fast** rate limiting. 
+The script is very lightweight and performs the entire operation atomically. So it can be used to
+rate limit access to any resource at scale.
 
 ### Installation
 
