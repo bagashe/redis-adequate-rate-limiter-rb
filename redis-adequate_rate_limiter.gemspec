@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 Gem::Specification.new do |s|
-  s.name        = 'redis-adequate-rate-limiter'
-  s.version     = '0.0.0'
+  s.name        = 'redis-adequate_rate_limiter'
+  s.version     = '1.0.0'
   s.summary     = 'Provides rate limiting using Redis & a Lua script.'
   s.description = <<~DESCRIPTION
     Uses a Lua script for Redis to provide smooth, configurable, space-efficient &

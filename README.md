@@ -1,5 +1,19 @@
 Lua script for Redis, packaged as a Ruby gem, that provides **smooth**, **configurable**, **space-efficient** & **blazing fast** rate limiting. 
 
+### Installation
+
+Add this line to your application's Gemfile:
+
+`gem 'redis-adequate_rate_limiter'`
+
+And then execute:
+
+`$ bundle`
+
+Or install it yourself as:
+
+`$ gem install redis-adequate_rate_limiter`
+
 
 ### Usage:
   
@@ -71,3 +85,7 @@ y1 = y0' + 1 is the computed used quota at t1.
 Processor: Intel® Core™ i7-8550U CPU @ 1.80GHz × 8                                     
 Results: **142836.73 requests per second** with **99%** of them being served in under **0.6 ms**                     
 _Note that client and server were running on the same machine. Even so, it proves that performance of this Lua script should not be an issue._                                               
+
+## Contributing
+Bug reports, feature suggestions and pull requests are welcome on GitHub.
+
